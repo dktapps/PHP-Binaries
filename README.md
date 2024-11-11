@@ -100,3 +100,9 @@ This script doesn't accept parameters, but the following environment variables a
 | xxhash | https://github.com/pmmp/ext-xxhash/releases | Not currently used | Could be replaced by `hash()` in recent versions of PHP but this extension has much better performance |
 | arraydebug | https://github.com/pmmp/ext-arraydebug/tags | Debugging array hash collisions | |
 | encoding | https://github.com/pmmp/ext-encoding/releases | Not currently used | Experimental, intended to replace `BinaryUtils` but never finished |
+
+### Misc
+
+| Name of package | Version info URL | Needed for | Notes |
+|:----------------|:-----------------|:-----------|:------|
+| php-sdk-binary-tools | https://github.com/php/php-sdk-binary-tools/releases | Building PHP on Windows | |
