@@ -18,16 +18,23 @@ if "%PHP_DEBUG_BUILD%"=="" (
 set MSBUILD_CONFIGURATION=RelWithDebInfo
 set PHP_JIT_ENABLE_ARG=off
 
+REM NOTE: Tags with "v" prefixes behave weirdly in the GitHub API. They'll be stripped in some places but not others.
+REM Use commit hashes to avoid this.
+
 set LIBYAML_VER=0.2.5
 set PTHREAD_W32_VER=3.0.0
+REM release not tagged
 set LEVELDB_MCPE_VER=1c7564468b41610da4f498430e795ca4de0931ff
+REM 1.20 - see above note about "v" prefixes
 set LIBDEFLATE_VER=dd12ff2b36d603dbb7fa8838fe7e7176fcbd4f6f
 
 set PHP_PMMPTHREAD_VER=6.1.0
 set PHP_YAML_VER=2.2.3
 set PHP_CHUNKUTILS2_VER=0.3.5
 set PHP_IGBINARY_VER=3.2.15
+REM release not tagged
 set PHP_LEVELDB_VER=317fdcd8415e1566fc2835ce2bdb8e19b890f9f3
+REM release not tagged
 set PHP_CRYPTO_VER=abbe7cbf869f96e69f2ce897271a61d32f43c7c0
 set PHP_RECURSIONGUARD_VER=0.1.0
 set PHP_MORTON_VER=0.1.2
