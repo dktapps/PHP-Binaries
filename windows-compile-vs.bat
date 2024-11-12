@@ -1,4 +1,4 @@
-\@echo off
+@echo off
 
 REM For future users: This file MUST have CRLF line endings. If it doesn't, lots of inexplicable undesirable strange behaviour will result.
 REM Also: Don't modify this version with sed, or it will screw up your line endings.
