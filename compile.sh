@@ -6,7 +6,7 @@
 
 ZLIB_VERSION="1.3.1"
 GMP_VERSION="6.3.0"
-CURL_VERSION="curl-8_11_0"
+CURL_VERSION="curl-8_9_1"
 YAML_VERSION="0.2.5"
 LEVELDB_VERSION="1c7564468b41610da4f498430e795ca4de0931ff" #release not tagged
 LIBXML_VERSION="2.10.1" #2.10.2 requires automake 1.16.3, which isn't easily available on Ubuntu 20.04
