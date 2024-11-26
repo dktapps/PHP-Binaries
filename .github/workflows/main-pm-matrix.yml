@@ -134,22 +134,23 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Install tools and dependencies
-        run: choco install wget --no-progress
         
       - name: Compile PHP
-        run: .\windows-compile-vs.bat
+        run: .\windows-compile-vs.ps1
         env:
-          VS_EDITION: Enterprise
           SOURCES_PATH: ${{ github.workspace }}\pocketmine-php-sdk
           PM_VERSION_MAJOR: ${{ inputs.pm-version-major }}
 
-      - name: Rename artifacts
+      - name: Download VC++ Redistributable
+        run: |
+          #vs17 allows running anything from VS 2015-2022
+          Invoke-WebRequest -Uri https://aka.ms/vs/17/release/vc_redist.x64.exe -OutFile vc_redist.x64.exe
+
+      - name: Prepare artifacts
         run: |
           mkdir temp
+          Compress-Archive -Path .\bin -DestinationPath "PHP-Windows-x64-PM${{ inputs.pm-version-major }}.zip"
           move php-debug-pack-*.zip temp/PHP-Windows-x64-PM${{ inputs.pm-version-major }}-debugging-symbols.zip
-          move php-*.zip temp/PHP-Windows-x64-PM${{ inputs.pm-version-major }}.zip
           move temp\*.zip .
 
       - name: Upload artifacts
@@ -158,7 +159,8 @@ jobs:
         with:
           name: Windows-PM${{ inputs.pm-version-major }}
           path: |
-            PHP-Windows-x64*.zip
+            PHP-Windows-x64-PM${{ inputs.pm-version-major }}*.zip
             compile.log
             windows-compile-vs.bat
+            vc_redist.x64.exe
           if-no-files-found: error
