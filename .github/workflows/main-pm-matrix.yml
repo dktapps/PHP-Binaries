@@ -84,7 +84,7 @@ jobs:
       - name: Install tools and dependencies
         run: |
           #workaround github actions default image providing outdated pkg-config
-          brew unlink pkg-config || true
+          brew uninstall --ignore-dependencies --force pkg-config@0.29.2 || true
           brew install libtool autoconf automake pkg-config bison re2c
 
       - name: Prepare compile.sh download cache
