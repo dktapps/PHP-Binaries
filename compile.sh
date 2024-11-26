@@ -276,7 +276,7 @@ if [ "$PHP_VERSION_BASE" == "auto" ]; then
 elif [ "$PHP_VERSION_BASE" != "$PREFERRED_PHP_VERSION_BASE" ]; then
 	#TODO: validate that this PHP version is able to be used
 	write_out "WARNING" "$PHP_VERSION_BASE is not the default for PocketMine-MP $PM_VERSION_MAJOR"
-  write_out "WARNING" "The build may fail, or you may not be able to use the resulting PHP binary"
+	write_out "WARNING" "The build may fail, or you may not be able to use the resulting PHP binary"
 fi
 
 for version in "${PHP_VERSIONS[@]}"; do
@@ -292,12 +292,7 @@ if [ "$PHP_VERSION" == "" ]; then
 	exit 1
 fi
 
-PHP_VERSION_MAJOR=$(echo "$PHP_VERSION" | cut -d. -f1)
-PHP_VERSION_MINOR=$(echo "$PHP_VERSION" | cut -d. -f2)
-#TODO: patch is a pain because of suffixes and we don't really need it anyway
-
-# Use this for switching PHP version specific logic
-PHP_VERSION_ID=$(((PHP_VERSION_MAJOR * 10000) + (PHP_VERSION_MINOR * 100)))
+PHP_VERSION_ID=$(php_version_id "$PHP_VERSION")
 write_out "opt" "Selected PHP $PHP_VERSION ($PHP_VERSION_ID)"
 
 #Needed to use aliases
