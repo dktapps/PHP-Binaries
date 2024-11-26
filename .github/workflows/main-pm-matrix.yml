@@ -134,7 +134,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        
+
+      - name: Prepare download cache
+        id: download-cache
+        uses: actions/cache@v4
+        with:
+          path: ./download_cache
+          key: windows-cache-${{ hashFiles('./windows-compile-vs.ps1') }}
+          restore-keys: windows-cache-
+
       - name: Compile PHP
         run: .\windows-compile-vs.ps1
         env:
