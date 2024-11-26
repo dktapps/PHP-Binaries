@@ -1,15 +1,9 @@
 ﻿$ErrorActionPreference="Stop"
 
-$PHP_MAJOR_VER="8.2"
-$PHP_VER="$PHP_MAJOR_VER.25"
-$PHP_GIT_REV="php-$PHP_VER"
-$PHP_DISPLAY_VER="$PHP_VER"
+$PHP_VERSIONS=@("8.2.25", "8.3.13")
+
 $PHP_SDK_VER="2.3.0"
 $ARCH="x64"
-
-#TODO: these should be selected by PHP base version
-$VC_VER="vs16"
-$CMAKE_TARGET="Visual Studio 16 2019"
 
 #### NOTE: Tags with "v" prefixes behave weirdly in the GitHub API. They'll be stripped in some places but not others.
 #### Use commit hashes to avoid this.
@@ -112,6 +106,12 @@ foreach ($dep in $script_dependencies) {
 
 pm-echo "Checking configuration options"
 
+$PHP_VERSION_BASE="auto"
+$PHP_VER=""
+if ($env:PHP_VERSION_BASE -ne $null) {
+    $PHP_VERSION_BASE=$env:PHP_VERSION_BASE
+}
+
 $PHP_DEBUG_BUILD=0
 if ($env:PHP_DEBUG_BUILD -eq 1) {
 	$PHP_DEBUG_BUILD=1
@@ -138,14 +138,63 @@ if ($env:PHP_JIT_SUPPORT -eq 1) {
     pm-echo "Compiling JIT support in OPcache (unstable)"
 }
 
-if ($env:PM_VERSION_MAJOR -eq $null) {
-    pm-fatal-error "Please specify PocketMine-MP major version by setting the PM_VERSION_MAJOR environment variable"
+function php-version-id {
+    param ([string] $version)
+
+    $parts = $version.Split(".")
+
+	#TODO: patch is a pain because of suffixes and we don't really need it anyway
+    $result = (([int]$parts[0]) * 10000) + (([int]$parts[1]) * 100)
+    return $result
 }
-if ($env:PM_VERSION_MAJOR -lt 5) {
-    pm-fatal-error "PocketMine-MP 4.x and older are no longer supported"
+
+$PREFERRED_PHP_VERSION_BASE=""
+switch ($env:PM_VERSION_MAJOR) {
+    5 { $PREFERRED_PHP_VERSION_BASE="8.2" }
+    $null { pm-fatal-error "Please specify PocketMine-MP major version by setting the PM_VERSION_MAJOR environment variable" }
+    default { pm-fatal-error "PocketMine-MP $PM_VERSION_MAJOR is not supported by this version of the build script" }
 }
+
 $PM_VERSION_MAJOR=$env:PM_VERSION_MAJOR
 pm-echo "Compiling with configuration for PocketMine-MP $PM_VERSION_MAJOR"
+
+if ($PHP_VERSION_BASE -eq "auto") {
+    $PHP_VERSION_BASE=$PREFERRED_PHP_VERSION_BASE
+} elseif ($PHP_VERSION_BASE -ne $PREFERRED_PHP_VERSION_BASE) {
+    pm-echo "[WARNING] $PHP_VERSION_BASE is not the default for PocketMine-MP $PM_VERSION_MAJOR"
+    pm-echo "[WARNING] The build may fail, or you may not be able to use the resulting PHP binary"
+}
+
+foreach ($version in $PHP_VERSIONS) {
+    if ($version -like "$PHP_VERSION_BASE.*") {
+        $PHP_VER=$version
+        break
+    }
+}
+if ($PHP_VER -eq "") {
+    pm-echo-error "Unsupported PHP base version $PHP_VERSION_BASE"
+    pm-echo-error "Example inputs: 8.2, 8.3"
+    exit 1
+}
+
+#don't really need these except for dev versions
+$PHP_GIT_REV="php-$PHP_VER"
+$PHP_DISPLAY_VER="$PHP_VER"
+
+#TODO: these should be selected by PHP base version
+$VC_VER=""
+$CMAKE_TARGET=""
+
+$PHP_VERSION_ID = php-version-id $PHP_VER
+if ($PHP_VERSION_ID -ge 80400) {
+    $VC_VER="vs17"
+    $CMAKE_TARGET="Visual Studio 17 2022"
+} else {
+    $VC_VER="vs16"
+    $CMAKE_TARGET="Visual Studio 16 2019"
+}
+
+pm-echo "Selected PHP $PHP_VER ($PHP_VERSION_ID) and toolset $VC_VER ($CMAKE_TARGET)"
 
 if ($env:SOURCES_PATH -ne $null) {
     $SOURCES_PATH=$env:SOURCES_PATH
@@ -224,9 +273,9 @@ function sdk-command {
 }
 
 function download-php-deps {
-    write-library "PHP prebuilt deps" "$PHP_MAJOR_VER/$VC_VER"
+    write-library "PHP prebuilt deps" "$PHP_VERSION_BASE/$VC_VER"
     write-download
-    sdk-command "phpsdk_deps -u -t $VC_VER -b $PHP_MAJOR_VER -a $ARCH -f -d $DEPS_DIR || exit 1"
+    sdk-command "phpsdk_deps -u -t $VC_VER -b $PHP_VERSION_BASE -a $ARCH -f -d $DEPS_DIR || exit 1"
     write-done
 }
 
