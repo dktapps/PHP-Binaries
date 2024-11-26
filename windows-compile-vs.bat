@@ -16,7 +16,7 @@ if "%PHP_DEBUG_BUILD%"=="" (
 	set PHP_DEBUG_BUILD=0
 )
 set MSBUILD_CONFIGURATION=RelWithDebInfo
-set PHP_JIT_ENABLE_ARG=off
+set PHP_JIT_ENABLE_ARG=no
 
 REM NOTE: Tags with "v" prefixes behave weirdly in the GitHub API. They'll be stripped in some places but not others.
 REM Use commit hashes to avoid this.
@@ -74,7 +74,7 @@ if "%PHP_DEBUG_BUILD%"=="0" (
 )
 
 if "%PHP_JIT_SUPPORT%"=="1" (
-    set PHP_JIT_ENABLE_ARG=on
+    set PHP_JIT_ENABLE_ARG=yes
     call :pm-echo "Compiling JIT support in OPcache (unstable)"
 )
 
