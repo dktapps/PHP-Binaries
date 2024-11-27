@@ -11,6 +11,14 @@ on:
         description: 'PHP base version'
         required: true
         type: string
+      special-release:
+        description: 'Special release type to create (pm-default-latest, pm-default, none)'
+        required: true
+        type: string
+      pm-preview:
+        description: "Mark releases as pre-release"
+        required: true
+        type: boolean
 
 jobs:
   linux:
@@ -187,15 +195,15 @@ jobs:
     needs: [linux, macos, windows]
     runs-on: ubuntu-20.04
     if: ${{ github.ref_name == 'stable' && github.ref_type == 'branch' && !contains(github.event.head_commit.message, '[no release]') }}
-    concurrency: release-${{ inputs.php-version-base }}
+    concurrency: release-${{ inputs.php-version-base }}-pm${{ inputs.pm-version-major }}
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Update latest tag target
         run: |
-          git tag -f php-${{ inputs.php-version-base }}-latest
-          git push -f origin php-${{ inputs.php-version-base }}-latest
+          git tag -f pm${{ inputs.pm-version-major }}-all-latest
+          git push -f origin pm${{ inputs.pm-version-major }}-all-latest
           git tag -f pm${{ inputs.pm-version-major }}-latest
           git push -f origin pm${{ inputs.pm-version-major }}-latest
 
@@ -210,68 +218,58 @@ jobs:
           echo -e "\n\n" >> changelog.md
           echo "Built by: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> changelog.md
           echo "Build number: ${{ github.run_number }}" >> changelog.md
-          if [[ "${{ github.ref_name }}" != "${{ github.event.repository.default_branch }}" ]]; then
-            echo -e "\n\n\n" >> changelog.md
-            if [[ "${{ github.ref_name }}" == *"preview" ]]; then
-              echo "# :warning: :radioactive: EXPERIMENTAL!!! :radioactive: :warning:" >> changelog.md
-              echo "### Your server and/or plugins may crash or misbehave with this release!" >> changelog.md
-              echo "### Consider downloading the [recommended release](${{ github.server_url }}/${{ github.repository }}/releases/latest) instead." >> changelog.md
-            else
-              echo ":warning: WARNING! :warning:" >> changelog.md
-              echo "Some plugins might not work properly on this version yet." >> changelog.md
-              echo "If you have problems, try the [recommended release](${{ github.server_url }}/${{ github.repository }}/releases/latest) instead." >> changelog.md
-            fi
-          else
-            echo ":white_check_mark: This version is recommended for production servers." >> changelog.md
-          fi
           echo -e "\n\n\n" >> changelog.md
           echo ":information_source: **Linux/MacOS users**: Please see [this page](https://doc.pmmp.io/en/rtfd/faq/installation/opcache.so.html) to fix extension loading errors. Also, check out the [PocketMine-MP Linux/MacOS installer](https://doc.pmmp.io/en/rtfd/installation/get-dot-pmmp-dot-io.html)." >> changelog.md
+          echo ":warning: **Windows users**: Don't forget to install [Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe) or the binary will not work!" >> changelog.md
+          echo -e "\n\n\n" >> changelog.md
+
+          if [[ "${{ inputs.special-release }}" != "none" ]]; then
+            cp changelog.md special-changelog.md
+            echo ":white_check_mark: This version is recommended for PocketMine-MP ${{ inputs.pm-version-base }}.x production servers." >> special-changelog.md
+          fi
+
+          echo -e "\n\n\n" >> changelog.md
+          echo ":warning: WARNING! :warning:" >> changelog.md
+          echo "Plugins for PocketMine-MP ${{ inputs.pm-version-major }}.x may not work on all of these PHP versions." >> changelog.md
+          echo "If you have problems, try the [recommended PM${{ inputs.pm-version-major }} release](${{ github.server_url }}/${{ github.repository }}/releases/pm${{ inputs.pm-version-major }}-latest) instead." >> changelog.md
 
       - name: Get date
         id: date
         run: |
           echo DATE=$(date -u +'%d %b %Y') >> $GITHUB_OUTPUT
 
-      - name: Update latest PHP release
+      - name: Update recommended PM release
         uses: ncipollo/release-action@v1.14.0
+        if: ${{ inputs.special-release != 'none' }}
         with:
           artifacts: |
-            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Linux-PM*/*.tar.gz
-            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-MacOS-*-PM*/*.tar.gz
-            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Windows-PM*/*.zip
-            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Windows-PM*/*.exe
-          name: PHP ${{ inputs.php-version-base }} - Latest (${{ steps.date.outputs.DATE }})
-          tag: php-${{ inputs.php-version-base }}-latest
-          commit: ${{ github.sha }}
-          allowUpdates: true
-          bodyFile: ${{ github.workspace }}/changelog.md
-          removeArtifacts: true
-
-      - name: Update latest PM release
-        uses: ncipollo/release-action@v1.14.0
-        with:
-          artifacts: |
-            ${{ github.workspace }}/PHP-*-Linux-PM${{ inputs.pm-version-major }}/*.tar.gz
-            ${{ github.workspace }}/PHP-*-MacOS-*-PM${{ inputs.pm-version-major }}/*.tar.gz
-            ${{ github.workspace }}/PHP-*-Windows-PM${{ inputs.pm-version-major }}/*.zip
-            ${{ github.workspace }}/PHP-*-Windows-PM${{ inputs.pm-version-major }}/*.exe
-          name: PocketMine-MP ${{ inputs.pm-version-major }}.x - Latest (${{ steps.date.outputs.DATE }})
+            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Linux-PM${{ inputs.pm-version-major }}/*.tar.gz
+            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-MacOS-*-PM${{ inputs.pm-version-major }}/*.tar.gz
+            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Windows-PM${{ inputs.pm-version-major }}/*.zip
+            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Windows-PM${{ inputs.pm-version-major }}/*.exe
+          name: PocketMine-MP ${{ inputs.pm-version-major }}.x - Recommended (${{ steps.date.outputs.DATE }})
           tag: pm${{ inputs.pm-version-major }}-latest
           commit: ${{ github.sha }}
           allowUpdates: true
-          bodyFile: ${{ github.workspace }}/changelog.md
+          bodyFile: ${{ github.workspace }}/special-changelog.md
           removeArtifacts: true
+          makeLatest: ${{ inputs.special-release == 'default-latest' }}
+          prerelease: ${{ inputs.pm-preview == 'true' }}
 
-      - name: Publish unique release
+      - name: Update all PM release
         uses: ncipollo/release-action@v1.14.0
         with:
           artifacts: |
-            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Linux-PM*/*.tar.gz
-            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-MacOS-*-PM*/*.tar.gz
-            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Windows-PM*/*.zip
-            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Windows-PM*/*.exe
-          makeLatest: false
-          name: PHP ${{ inputs.php-version-base }} (Build ${{ github.run_number }})
-          tag: php-${{ inputs.php-version-base }}-build-${{ github.run_number }}
+            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Linux-PM${{ inputs.pm-version-major }}/*.tar.gz
+            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-MacOS-*-PM${{ inputs.pm-version-major }}/*.tar.gz
+            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Windows-PM${{ inputs.pm-version-major }}/*.zip
+            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Windows-PM${{ inputs.pm-version-major }}/*.exe
+          name: PocketMine-MP ${{ inputs.pm-version-major }}.x - All PHP Versions (${{ steps.date.outputs.DATE }})
+          tag: pm${{ inputs.pm-version-major }}-all-latest
           commit: ${{ github.sha }}
+          allowUpdates: true
           bodyFile: ${{ github.workspace }}/changelog.md
+          removeArtifacts: true
+          makeLatest: false
+          prerelease: ${{ inputs.pm-preview == 'true' }}
+
