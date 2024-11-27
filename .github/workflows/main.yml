@@ -16,12 +16,8 @@ jobs:
     name: PM${{ matrix.pm-version-major }} - PHP ${{ inputs.php-version-base }}
     strategy:
       matrix:
-        include:
-          - pm-version-major: 5
-            php-version-base: ["8.2", "8.3"]
-          #e.g.
-          #- pm-version-major: 6
-          #  php-version-base: ["8.3", "8.4"]
+        pm-version-major: [5]
+        php-version-base: ["8.2", "8.3"]
 
     uses: ./.github/workflows/main-pm-matrix.yml
     with:
