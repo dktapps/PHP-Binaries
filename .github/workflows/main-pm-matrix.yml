@@ -14,7 +14,7 @@ on:
 
 jobs:
   linux:
-    name: Linux
+    name: Linux / PM${{ inputs.pm-version-major }} / PHP ${{ inputs.php-version-base }}
     runs-on: ubuntu-20.04
 
     steps:
@@ -70,7 +70,7 @@ jobs:
           if-no-files-found: error
 
   macos:
-    name: MacOS ${{ matrix.artifact-name }}
+    name: MacOS ${{ matrix.artifact-name }} / PM${{ inputs.pm-version-major }} / PHP ${{ inputs.php-version-base }}
     runs-on: ${{ matrix.image }}
     strategy:
       matrix:
@@ -136,7 +136,7 @@ jobs:
           if-no-files-found: error
 
   windows:
-    name: Windows
+    name: Windows / PM${{ inputs.pm-version-major }} / PHP ${{ inputs.php-version-base }}
     runs-on: windows-2019
 
     steps:
@@ -183,7 +183,7 @@ jobs:
 
 
   publish:
-    name: Publish binaries
+    name: Publish binaries / PM${{ inputs.pm-version-major }} / PHP ${{ inputs.php-version-base }}
     needs: [linux, macos, windows]
     runs-on: ubuntu-20.04
     if: ${{ github.ref_name == 'stable' && github.ref_type == 'branch' && !contains(github.event.head_commit.message, '[no release]') }}

@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   all-builds:
-    name: PM${{ matrix.pm-version-major }} - PHP ${{ inputs.php-version-base }}
+    name: All builds
     strategy:
       matrix:
         pm-version-major: [5]
