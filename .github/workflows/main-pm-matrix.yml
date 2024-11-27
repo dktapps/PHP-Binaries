@@ -165,11 +165,6 @@ jobs:
           PM_VERSION_MAJOR: ${{ inputs.pm-version-major }}
           PHP_VERSION_BASE: ${{ inputs.php-version-base }}
 
-      - name: Download VC++ Redistributable
-        run: |
-          #vs17 allows running anything from VS 2015-2022
-          Invoke-WebRequest -Uri https://aka.ms/vs/17/release/vc_redist.x64.exe -OutFile vc_redist.x64.exe
-
       - name: Prepare artifacts
         run: |
           mkdir temp
@@ -186,7 +181,6 @@ jobs:
             PHP-${{ inputs.php-version-base }}-Windows-x64-PM${{ inputs.pm-version-major }}*.zip
             compile.log
             windows-compile-vs.bat
-            vc_redist.x64.exe
           if-no-files-found: error
 
 
@@ -246,7 +240,6 @@ jobs:
             ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Linux-PM${{ inputs.pm-version-major }}/*.tar.gz
             ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-MacOS-*-PM${{ inputs.pm-version-major }}/*.tar.gz
             ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Windows-PM${{ inputs.pm-version-major }}/*.zip
-            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Windows-PM${{ inputs.pm-version-major }}/*.exe
           name: PocketMine-MP ${{ inputs.pm-version-major }}.x - Recommended (${{ steps.date.outputs.DATE }})
           tag: pm${{ inputs.pm-version-major }}-latest
           commit: ${{ github.sha }}
@@ -263,7 +256,6 @@ jobs:
             ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Linux-PM${{ inputs.pm-version-major }}/*.tar.gz
             ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-MacOS-*-PM${{ inputs.pm-version-major }}/*.tar.gz
             ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Windows-PM${{ inputs.pm-version-major }}/*.zip
-            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Windows-PM${{ inputs.pm-version-major }}/*.exe
           name: PocketMine-MP ${{ inputs.pm-version-major }}.x - All PHP Versions (${{ steps.date.outputs.DATE }})
           tag: pm${{ inputs.pm-version-major }}-all-latest
           commit: ${{ github.sha }}
