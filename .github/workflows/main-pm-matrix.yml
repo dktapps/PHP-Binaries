@@ -266,12 +266,12 @@ jobs:
         uses: ncipollo/release-action@v1.14.0
         with:
           artifacts: |
-            ${{ github.workspace }}/PHP-*-Linux-PM*/*.tar.gz
-            ${{ github.workspace }}/PHP-*-MacOS-*-PM*/*.tar.gz
-            ${{ github.workspace }}/PHP-*-Windows-PM*/*.zip
-            ${{ github.workspace }}/PHP-*-Windows-PM*/*.exe
+            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Linux-PM*/*.tar.gz
+            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-MacOS-*-PM*/*.tar.gz
+            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Windows-PM*/*.zip
+            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Windows-PM*/*.exe
           makeLatest: false
           name: PHP ${{ inputs.php-version-base }} (Build ${{ github.run_number }})
-          tag: php-build-${{ github.run_number }}
+          tag: php-${{ inputs.php-version-base }}-build-${{ github.run_number }}
           commit: ${{ github.sha }}
           bodyFile: ${{ github.workspace }}/changelog.md
