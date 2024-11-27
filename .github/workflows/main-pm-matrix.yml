@@ -205,6 +205,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: ${{ github.workspace }}
+          pattern: "PHP-${{ inputs.php-version-base }}-*-PM${{ inputs.pm-version-major }}"
 
       - name: Generate release notes
         run: |
@@ -237,15 +238,14 @@ jobs:
         if: ${{ inputs.special-release != 'none' }}
         with:
           artifacts: |
-            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Linux-PM${{ inputs.pm-version-major }}/*.tar.gz
-            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-MacOS-*-PM${{ inputs.pm-version-major }}/*.tar.gz
-            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Windows-PM${{ inputs.pm-version-major }}/*.zip
-          name: PM ${{ inputs.pm-version-major }}.x - Recommended (${{ steps.date.outputs.DATE }})
+            ${{ github.workspace }}/PHP-*-Linux-PM*/*.tar.gz
+            ${{ github.workspace }}/PHP-*-MacOS-*-PM*/*.tar.gz
+            ${{ github.workspace }}/PHP-*-Windows-PM*/*.zip
+          name: PM ${{ inputs.pm-version-major }}.x (${{ steps.date.outputs.DATE }}) - Recommended
           tag: pm${{ inputs.pm-version-major }}-latest
           commit: ${{ github.sha }}
           allowUpdates: true
           bodyFile: ${{ github.workspace }}/special-changelog.md
-          removeArtifacts: true
           makeLatest: ${{ inputs.special-release == 'default-latest' }}
           prerelease: ${{ inputs.pm-preview == 'true' }}
 
@@ -253,15 +253,14 @@ jobs:
         uses: ncipollo/release-action@v1.14.0
         with:
           artifacts: |
-            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Linux-PM${{ inputs.pm-version-major }}/*.tar.gz
-            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-MacOS-*-PM${{ inputs.pm-version-major }}/*.tar.gz
-            ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Windows-PM${{ inputs.pm-version-major }}/*.zip
-          name: PM ${{ inputs.pm-version-major }}.x - All PHP Versions (${{ steps.date.outputs.DATE }})
+            ${{ github.workspace }}/PHP-*-Linux-PM*/*.tar.gz
+            ${{ github.workspace }}/PHP-*-MacOS-*-PM*/*.tar.gz
+            ${{ github.workspace }}/PHP-*-Windows-PM*/*.zip
+          name: PM ${{ inputs.pm-version-major }}.x (${{ steps.date.outputs.DATE }}) - All PHP Versions
           tag: pm${{ inputs.pm-version-major }}-all-latest
           commit: ${{ github.sha }}
           allowUpdates: true
           bodyFile: ${{ github.workspace }}/changelog.md
-          removeArtifacts: true
           makeLatest: false
           prerelease: ${{ inputs.pm-preview == 'true' }}
 
