@@ -219,7 +219,7 @@ jobs:
 
           if [[ "${{ inputs.special-release }}" != "none" ]]; then
             cp changelog.md special-changelog.md
-            echo ":white_check_mark: This version is recommended for PocketMine-MP ${{ inputs.pm-version-base }}.x production servers." >> special-changelog.md
+            echo ":white_check_mark: This version is recommended for PocketMine-MP ${{ inputs.pm-version-major }}.x production servers." >> special-changelog.md
           fi
 
           echo -e "\n\n\n" >> changelog.md
@@ -240,7 +240,7 @@ jobs:
             ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Linux-PM${{ inputs.pm-version-major }}/*.tar.gz
             ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-MacOS-*-PM${{ inputs.pm-version-major }}/*.tar.gz
             ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Windows-PM${{ inputs.pm-version-major }}/*.zip
-          name: PocketMine-MP ${{ inputs.pm-version-major }}.x - Recommended (${{ steps.date.outputs.DATE }})
+          name: PM ${{ inputs.pm-version-major }}.x - Recommended (${{ steps.date.outputs.DATE }})
           tag: pm${{ inputs.pm-version-major }}-latest
           commit: ${{ github.sha }}
           allowUpdates: true
@@ -256,7 +256,7 @@ jobs:
             ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Linux-PM${{ inputs.pm-version-major }}/*.tar.gz
             ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-MacOS-*-PM${{ inputs.pm-version-major }}/*.tar.gz
             ${{ github.workspace }}/PHP-${{ inputs.php-version-base }}-Windows-PM${{ inputs.pm-version-major }}/*.zip
-          name: PocketMine-MP ${{ inputs.pm-version-major }}.x - All PHP Versions (${{ steps.date.outputs.DATE }})
+          name: PM ${{ inputs.pm-version-major }}.x - All PHP Versions (${{ steps.date.outputs.DATE }})
           tag: pm${{ inputs.pm-version-major }}-all-latest
           commit: ${{ github.sha }}
           allowUpdates: true
