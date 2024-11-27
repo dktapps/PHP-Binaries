@@ -29,5 +29,5 @@ jobs:
       pm-version-major: ${{ matrix.pm-version-major }}
       php-version-base: ${{ matrix.php-version-base }}
       special-release: ${{ matrix.special-release }}
-      pm-preview: ${{ matrix.pm-preview || 'false' }}
+      pm-preview: ${{ matrix.pm-preview || false }}
     secrets: inherit
